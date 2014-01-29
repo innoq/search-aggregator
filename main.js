@@ -1,7 +1,8 @@
 var express = require("express");
 var async = require("async");
+var adapterBlog = require("./adapterBlog");
 
-var ADAPTORS = [dummyAdaptor];
+var ADAPTORS = [dummyAdaptor, adapterBlog];
 
 var app = express();
 
