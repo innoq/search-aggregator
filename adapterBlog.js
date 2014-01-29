@@ -1,24 +1,41 @@
 var request = require("request")
+var htmlparser = require("htmlparser");
+
 
 var auth = {
   'auth': {
-    'user': 'frank',
-    'pass': 'innoq01',
+    'user': 'user',
+    'pass': 'pw',
     'sendImmediately': false
 	}
 }
 
 
+
+
+
 module.exports = function (query, callback) {
-	request.get('https://internal.innoq.com/blogging/search?q=vodafone', auth, function (error, response, body) {
+	request.get('url', auth, function (error, response, body) {
 	  if (!error && response.statusCode == 200) {
-	      callback(null, body);
+
+		
+
+
+		var handler = new htmlparser.DefaultHandler(
+		      function (error) { console.log(error); }, { verbose: false, ignoreWhitespace: true }
+		    );
+
+		var parser = new htmlparser.Parser(handler);
+		parser.parseComplete(body);
+		jsonDom = JSON.stringify(handler.dom, null, 2);
+
+		var articles = handler.dom.;
+
+	      callback(null, handler.dom);
 	  }
 	})
 };
 
 
 
-//https://internal.innoq.com/blogging/search?q=vodafone
-
-
+//{"type":"tag","name":"article","attribs":{"class":"post"},"children":[{"type":"tag","name":"h2","children"
