@@ -1,10 +1,10 @@
 var request = require("request")
 var htmlparser = require("htmlparser");
-
+var JSONPath = require("JSONPath");
 
 var auth = {
   'auth': {
-    'user': 'user',
+    'user': 'usr',
     'pass': 'pw',
     'sendImmediately': false
 	}
@@ -28,10 +28,16 @@ module.exports = function (query, callback) {
 		var parser = new htmlparser.Parser(handler);
 		parser.parseComplete(body);
 		jsonDom = JSON.stringify(handler.dom, null, 2);
+		console.log(jsonDom);
 
-		var articles = handler.dom.;
+	
 
-	      callback(null, handler.dom);
+
+		var articles = handler.dom.filter(function(element){
+			return element.name == "html" ;
+		});
+
+	      callback(null, articles);
 	  }
 	})
 };
