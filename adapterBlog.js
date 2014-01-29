@@ -1,47 +1,32 @@
-var request = require("request")
-var htmlparser = require("htmlparser");
-var JSONPath = require("JSONPath");
+var request = require("request");
+var jsonpath = require('JSONPath').eval;
+var cheerio = require('cheerio');
 
 var auth = {
   'auth': {
-    'user': 'usr',
-    'pass': 'pw',
+    'user': 'frank',
+    'pass': 'mon001',
     'sendImmediately': false
 	}
 }
 
-
-
-
-
 module.exports = function (query, callback) {
-	request.get('url', auth, function (error, response, body) {
+	request.get('https://internal.innoq.com/blogging/search?q=' + query, auth, function (error, response, body) {
 	  if (!error && response.statusCode == 200) {
 
-		
+	  	$ = cheerio.load(body);
 
+	  	var results = [];
 
-		var handler = new htmlparser.DefaultHandler(
-		      function (error) { console.log(error); }, { verbose: false, ignoreWhitespace: true }
-		    );
+	  	var articles = $('article').children('h2').each(function(i, elem){
+	  		var href = $(this).children('a').attr('href');
+		 	var textline = $(this).children('a').text();
+			var result = {title: textline, url: href}
+		 	results.push(result);
+	  	});
 
-		var parser = new htmlparser.Parser(handler);
-		parser.parseComplete(body);
-		jsonDom = JSON.stringify(handler.dom, null, 2);
-		console.log(jsonDom);
-
-	
-
-
-		var articles = handler.dom.filter(function(element){
-			return element.name == "html" ;
-		});
-
-	      callback(null, articles);
+	    callback(null, results);
 	  }
 	})
 };
 
-
-
-//{"type":"tag","name":"article","attribs":{"class":"post"},"children":[{"type":"tag","name":"h2","children"
