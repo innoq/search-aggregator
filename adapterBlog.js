@@ -4,14 +4,14 @@ var cheerio = require('cheerio');
 
 var auth = {
   'auth': {
-    'user': 'frank',
-    'pass': 'mon001',
+    'user': 'usr',
+    'pass': 'pw',
     'sendImmediately': false
 	}
 }
 
 module.exports = function (query, callback) {
-	request.get('https://internal.innoq.com/blogging/search?q=' + query, auth, function (error, response, body) {
+	request.get('url' + query, auth, function (error, response, body) {
 	  if (!error && response.statusCode == 200) {
 
 	  	$ = cheerio.load(body);
