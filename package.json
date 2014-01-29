@@ -4,7 +4,6 @@
     "async": "~0.2.10",
     "request": "~2.33.0",
     "JSONPath": "~0.9.1",
-    "htmlparser2": "~3.4.0",
     "cheerio": "~0.13.1"
   }
 }
