@@ -1,15 +1,24 @@
 var express = require("express");
 var async = require("async");
-var adapterBlog = require("./adapterBlog");
-var adapterGithubIssues = require("./adapter_github_issues");
-
-var ADAPTORS = [dummyAdaptor, adapterGithubIssues] //, adapterBlog];
 
 var app = express();
+var config = require("./config");
 
-app.get("/", function (req, res, next) {
+var adaptors = [];
+var name;
+for(name in config.adaptors) {
+	var adaptor = require(name);
+	var settings = adaptors[name];
+	adaptors.push([adaptor, settings]);
+}
+
+app.get("/", function(req, res, next) {
 	var query = req.param("query");
-	var tasks = generateTasks(query);
+	var tasks = adaptors.map(function(adaptor) {
+		return function(callback) {
+			adaptor(query, callback);
+		};
+	});
 
 	// TODO: error handling (timeout?)
 	async.parallel(tasks, function(err, results) {
@@ -24,14 +33,6 @@ app.get("/", function (req, res, next) {
 });
 
 app.listen(3000);
-
-function generateTasks(query) {
-	return ADAPTORS.map(function(adaptor) {
-		return function(callback) {
-			adaptor(query, callback);
-		};
-	});
-}
 
 function dummyAdaptor(query, callback) {
 	setTimeout(function() {
