@@ -13,13 +13,11 @@ app.get("/", function (req, res, next) {
 
 	// TODO: error handling (timeout?)
 	async.parallel(tasks, function(err, results) {
-    if (err) {
-      console.log('Error in aggregation: ');
-      console.log(err);
-		  res.writeHead(500, { "Content-Type": "text/plain" });
-		  res.end('I fucked up. Sorry.');
-      return;
-    }
+		if(err) {
+			res.writeHead(500, { "Content-Type": "text/plain" });
+			res.end("Sorry, something went wrong.");
+			return;
+		}
 		res.writeHead(200, { "Content-Type": "application/json" });
 		res.end(JSON.stringify(results));
 	});
