@@ -18,10 +18,10 @@ module.exports = function (query, callback) {
         url: 'https://api.github.com/search/issues?q=' + query,
         headers: {
             'User-Agent': 'search-aggregator',
-        }
+        },
+        json: true,
     };
 	  request.get(options, function (error, response, body) {
-        console.log(body);
 	      if (error) {
             console.log('error: ');
             console.log(error);
@@ -31,6 +31,16 @@ module.exports = function (query, callback) {
             console.log(error);
 	          return callback(new Error('Unexpected HTTP status: ' + response.status));
         }
-        return callback(null, body);
+        var results = [];
+        if (body && body.items) {
+            body.items.forEach(function(element) {
+                results.push({
+                    url: element.url,
+                    title: element.title,
+                    timestamp: element.updated_at,
+                });
+            });
+        }
+        return callback(null, results);
     });
 };
