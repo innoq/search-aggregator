@@ -11,7 +11,7 @@ var adaptors = [];
 
 for (var name in config.adaptors) {
 	var adaptor = require(name);
-	var settings = adaptors[name];
+	var settings = config.adaptors[name];
 	adaptors.push({
     adaptor: adaptor,
     settings: settings,
