@@ -1,9 +1,17 @@
 {
+  "name": "search-aggregator",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
   "dependencies": {
-    "express": "~3.4.8",
     "async": "~0.2.10",
-    "request": "~2.33.0",
+    "cheerio": "~0.13.1",
+    "express": "~3.4.8",
+    "jade": "~1.1.5",
     "JSONPath": "~0.9.1",
-    "cheerio": "~0.13.1"
+    "request": "~2.33.0"
   }
 }

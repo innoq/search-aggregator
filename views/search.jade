@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  h1 FancyProductName - The Search Aggregator
+  form(action="/", method="GET")
+    if query
+      input(type="search", name="query", placeholder="search term", value="#{query}")
+    else
+      input(type="search", name="query", placeholder="search term")
+    input(type="submit", value="search")
+
+  if query
+    h2= heading
+    if resultCount > 0
+      p
+        | #{resultCount} results have been found for
+        em  #{query}
+        | :
+
+      for aggregatorResult in resultArrays
+        for result in aggregatorResult
+          h2: a(href=result.url) #{result.title}
+          div= result.timestamp
+    else
+      p.
+        No results for #{query} :-(
