@@ -9,7 +9,7 @@ var auth = {
 	}
 }
 
-module.exports = function (query, callback) {
+module.exports = function (query, settings, callback) {
 	request.get('TODO URL' + query, auth, function (error, response, body) {
 		if (!error && response.statusCode == 200) {
 	  		$ = cheerio.load(body);

@@ -4,7 +4,8 @@ var request = require('request');
 // unauthicated requests. Providing basic auth or OAuth credentials would
 // definitely help, raising the rate limit to 20 requests per minute.
 
-module.exports = function (query, callback) {
+module.exports = function (query, settings, callback) {
+    console.log('adapter github issue search: starting for query ' + query);
 
     // TODO Restrict issue search to user innoQ
 
@@ -32,10 +33,11 @@ module.exports = function (query, callback) {
 	          return callback(new Error('Unexpected HTTP status: ' + response.status));
         }
         var results = [];
+        console.log('adapter github issue search: processing results for query ' + query);
         if (body && body.items) {
             body.items.forEach(function(element) {
                 results.push({
-                    url: element.url,
+                    url: element.html_url,
                     title: element.title,
                     timestamp: element.updated_at,
                 });
