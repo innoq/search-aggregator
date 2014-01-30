@@ -1,26 +1,34 @@
 extends layout
 
 block content
-  h1 FancyProductName - The Search Aggregator
-  form(action="/", method="GET")
-    if query
-      input(type="search", name="query", placeholder="search term", value="#{query}")
-    else
-      input(type="search", name="query", placeholder="search term")
-    input(type="submit", value="search")
 
-  if query
-    h2= heading
-    if resultCount > 0
-      p
-        | #{resultCount} results have been found for
-        em  #{query}
-        | :
+  .container
+    .row
+      .col-md-9(role="main")
 
-      for aggregatorResult in resultArrays
-        for result in aggregatorResult
-          h2: a(href=result.url) #{result.title}
-          div= result.timestamp
-    else
-      p.
-        No results for #{query} :-(
+        h2 FancyProductName - The Search Aggregator
+        form.form-inline(action="/", method="GET", role="form")
+          .form-group(style="width: 100%")
+            label.sr-only(for="search") Search Term
+            if query
+              input#search.form-control(type="search", name="query", placeholder="Enter search term", value="#{query}", style="width: 60%")
+            else
+              input#search.form-control(type="search", name="query", placeholder="Enter search term", style="width: 60%")
+
+            button.btn.btn-default.btn-primary(type="submit") Search
+
+        if query
+          h2= heading
+          if resultCount > 0
+            p
+              | #{resultCount} results have been found for
+              em  "#{query}"
+              | :
+
+            for aggregatorResult in resultArrays
+              for result in aggregatorResult
+                h4: a(href=result.url) #{result.title}
+                div= result.timestamp
+          else
+            p.
+              No results for "#{query}" :-(
