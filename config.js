@@ -10,7 +10,7 @@ module.exports = {
 		'./adapterBlog': {
 			username: 'anon',
 			password: 'none',
-			url: 'https://internal.innoq.com'
+			url: 'http(s)://your_url'
 		},
     */
 
