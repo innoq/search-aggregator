@@ -22,11 +22,12 @@ module.exports = {
 			password: 'none'
 		},
     */
-    	'./adapter_ldap':{
+
+        './adapter_ldap':{
 			username: 'anon',
 			password: 'none',
 			path: 'context/search/users/##key##/like/##value##.json',
 			url: 'http(s)://your_url'    		
-    	},
+    	}
 	}
 }
