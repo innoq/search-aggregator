@@ -2,11 +2,14 @@ extends layout
 
 block content
 
+  //- Bootrap container boilerplate
   .container
     .row
       .col-md-9(role="main")
 
         h2 FancyProductName - The Search Aggregator
+
+        //- query form
         form.form-inline(action="/", method="GET", role="form")
           .form-group(style="width: 100%")
             label.sr-only(for="search") Search Term
@@ -17,6 +20,7 @@ block content
 
             button.btn.btn-default.btn-primary(type="submit") Search
 
+        //- search results
         if query
           h2= heading
           if resultCount > 0
@@ -28,7 +32,8 @@ block content
             for aggregatorResult in resultArrays
               for result in aggregatorResult
                 h4: a(href=result.url) #{result.title}
-                div= result.timestamp
+                div= result.excerpt
+                div.small= result.timestamp
           else
             p.
               No results for "#{query}" :-(
