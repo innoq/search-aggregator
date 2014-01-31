@@ -28,8 +28,7 @@ module.exports = function (query, settings, callback) {
             console.log(error);
 	          return callback(error);
 	      } else if (response.statusCode != 200) {
-            console.log('error: ');
-            console.log(error);
+	          console.log('Unexpected HTTP status: ' + response.status);
 	          return callback(new Error('Unexpected HTTP status: ' + response.status));
         }
         var results = [];
