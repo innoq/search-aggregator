@@ -1,6 +1,11 @@
 module.exports = {
 	adaptors: {
-		'./adapter_github_issues': null,
+		'./adapter_github_issues': {
+      searchRestrictedToUser: 'put your organization or github user here',
+      username: 'anon',
+      password: 'none',
+    },
+
 
     // Just for testing purposes, does not require inet access
 		'./adapter_test_offline': null,
