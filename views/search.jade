@@ -1,38 +1,22 @@
-extends layout
+//- Bootrap container boilerplate
+.container
+  .row
+    .col-md-9(role="main")
 
-block content
+      h2 FancyProductName - The Search Aggregator
 
-  //- Bootrap container boilerplate
-  .container
-    .row
-      .col-md-9(role="main")
+      //- query form
+      form.form-inline(action="/", method="GET", role="form")
+        .form-group(style="width: 100%")
+          label.sr-only(for="search") Search Term
+          if query
+            input#search.form-control(type="search", name="query", placeholder="Enter search term", value="#{query}", style="width: 60%")
+          else
+            input#search.form-control(type="search", name="query", placeholder="Enter search term", style="width: 60%")
 
-        h2 FancyProductName - The Search Aggregator
+          button.btn.btn-default.btn-primary(type="submit") Search
 
-        //- query form
-        form.form-inline(action="/", method="GET", role="form")
-          .form-group(style="width: 100%")
-            label.sr-only(for="search") Search Term
-            if query
-              input#search.form-control(type="search", name="query", placeholder="Enter search term", value="#{query}", style="width: 60%")
-            else
-              input#search.form-control(type="search", name="query", placeholder="Enter search term", style="width: 60%")
+      //- search results heading
+      if query
+        h2= heading
 
-            button.btn.btn-default.btn-primary(type="submit") Search
-
-        //- search results
-        if query
-          h2= heading
-          if resultCount > 0
-            p
-              | #{resultCount} results have been found for
-              em  "#{query}"
-              | :
-
-            for result in results
-              h4: a(href=result.url) #{result.title}
-              div= result.excerpt
-              div.small= result.timestamp
-        else
-            p.
-              No results for "#{query}" :-(

@@ -1,6 +1,8 @@
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
+var delay = 1000;
+
 var results = [
   {
     url: 'http://example.com/1',
@@ -38,17 +40,19 @@ function AdapterTestOffline(settings) {
 
 util.inherits(AdapterTestOffline, EventEmitter);
 
+function emitNextResult(emitter, results, index) {
+  setTimeout(function() {
+    if (index === results.length) {
+      return emitter.emit('done');
+    } else {
+      emitter.emit('result', results[index++]);
+      return emitNextResult(emitter, results, index);
+    }
+  }, delay);
+}
+
 AdapterTestOffline.prototype.search = function(query) {
-  var self = this;
-  results.forEach(function(result, index) {
-    setTimeout(function() {
-      self.emit('result', result);
-      console.log(index + ' vs. ' + results.length);
-      if (index === results.length - 1) {
-        return self.emit('done');
-      }
-    }, 10);
-  });
+  emitNextResult(this, results, 0);
 };
 
 module.exports = AdapterTestOffline;

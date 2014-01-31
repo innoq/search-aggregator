@@ -67,41 +67,70 @@ function produceResult(res, req) {
 
 function produceJson(req, res) {
   console.log('...Json');
-  getResults(req, function(err, results) {
-    if (err) { return internalServerError(res); }
-    console.log('Writing JSON result');
-		res.writeHead(200, { 'Content-Type': 'application/json' });
-		res.end(JSON.stringify(result));
-    console.log('Finished writing JSON result');
-  });
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.write('[');
+  getResults(req, res, renderOneResultJson, writeEndJson);
+}
+
+function renderOneResultJson(res, result) {
+  if (res._searchAggregatorFirstJsonResultWritten) {
+    res.write(',');
+  } else {
+    res._searchAggregatorFirstJsonResultWritten = true;
+  }
+  res.write(JSON.stringify(result));
+}
+
+function writeEndJson(res) {
+  res.write(']');
+  res.end();
+  console.log('Finished writing JSON result');
 }
 
 function produceHtml(req, res) {
   console.log('...Html');
-  getResults(req, function(err, results, query) {
-    if (err) { return internalServerError(res); }
-    console.log('Rendering HTML result');
 
-    res.render('search', {
+  // write start of page
+  res.write('<!DOCTYPE html><html>');
+  app.render('head', {
+    title: 'Search Aggregator',
+  }, function(err, html) {
+    console.log('SEARCH HEAD', html);
+    res.write(html);
+    res.write('<body>');
+    app.render('search', {
       title: 'Search Aggregator',
-      heading: 'Search Results',
-      query: query,
-      results: results,
-      resultCount: '' + results.length,
+    }, function(err, html) {
+      console.log('SEARCH HEADER', html);
+      res.write(html);
     });
+  });
 
-    console.log('Finished rendering HTML result');
+  // kick of search and write each result as it comes in
+  getResults(req, res, renderOneResultHtml, writeEndHtml);
+}
+
+function renderOneResultHtml(res, result) {
+  app.render('search_result', {
+    result: result,
+  }, function(err, html) {
+    console.log('SEARCH RESULT', html);
+    res.write(html);
   });
 }
 
-function getResults(req, produceResponse) {
+function writeEndHtml(res) {
+  res.write('</body></html>');
+  res.end();
+}
+
+function getResults(req, res, renderOneResult, renderEnd) {
 	var query = req.param('query');
 
   if (!query) {
     return produceResponse(null, [], null);
   }
 
-  var results = [];
   var activeAdaptors = [];
 
 	// TODO: error handling & timeouts
@@ -118,7 +147,7 @@ function getResults(req, produceResponse) {
     adaptor.on('result', function(result) {
       console.log('Received result event from ' + adaptorName);
       console.log(JSON.stringify(result, null, 2));
-      results.push(result);
+      renderOneResult(res, result);
     });
 
     // register listener for done event - when the adaptor has finished, we
@@ -132,8 +161,7 @@ function getResults(req, produceResponse) {
       // has this been the last adaptor to finish?
       if (activeAdaptors.length === 0) {
         console.log('All adaptors finished, returning results');
-        console.log(JSON.stringify(results, null, 2));
-        return produceResponse(null, results, query);
+        return renderEnd(res);
       }
       console.log('There are still some active adaptors left: ' + JSON.stringify(activeAdaptors));
     });
