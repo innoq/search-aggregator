@@ -31,7 +31,9 @@ block content
 
             for aggregatorResult in resultArrays
               for result in aggregatorResult
-                h4: a(href=result.url) #{result.title}
+                h4: a(target='_new', href=result.url) #{result.title}
+                if result.img
+                  div: img(src=result.img)
                 div= result.excerpt
                 div.small= result.timestamp
           else

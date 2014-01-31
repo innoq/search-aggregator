@@ -1,0 +1,32 @@
+module.exports = {
+	adaptors: {
+		'./adapter_github_issues': null,
+
+    // Just for testing purposes, does not require inet access
+		'./adapter_test_offline': null,
+
+    // Does not work for me without credentials
+    /*
+		'./adapterBlog': {
+			username: 'anon',
+			password: 'none',
+			url: 'http(s)://your_url'
+		},
+    */
+
+    // There is no directory adaptors
+    // Forgot to add that on commit?
+    /*
+		'./adaptors/innoq_com': {
+			username: 'anon',
+			password: 'none'
+		},
+    */
+    	'./adapter_ldap':{
+			username: 'anon',
+			password: 'none',
+			path: 'context/search/users/##key##/like/##value##.json',
+			url: 'http(s)://your_url'    		
+    	},
+	}
+}
