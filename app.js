@@ -29,10 +29,10 @@ if ('development' == app.get('env')) {
 var config = require('./config');
 var adaptors = [];
 for (var name in config.adaptors) {
-	var adaptor = require(name);
+	var constructor = require(name);
 	var settings = config.adaptors[name];
 	adaptors.push({
-    adaptor: adaptor,
+    constructor: constructor,
     settings: settings,
   });
 }
@@ -67,36 +67,27 @@ function produceResult(res, req) {
 
 function produceJson(req, res) {
   console.log('...Json');
-  getResults(req, function(err, resultArrays) {
+  getResults(req, function(err, results) {
     if (err) { return internalServerError(res); }
     console.log('Writing JSON result');
 		res.writeHead(200, { 'Content-Type': 'application/json' });
-    // TODO Still some code duplication in produceJson and produceHtml
-
-    // TODO each element of resultsArray is an array of results from one
-    // aggregator, so this will write an array of arrays which is not what we
-    // want.
-		res.end(JSON.stringify(resultArrays));
+		res.end(JSON.stringify(result));
     console.log('Finished writing JSON result');
   });
 }
 
 function produceHtml(req, res) {
   console.log('...Html');
-  getResults(req, function(err, resultArrays, query) {
+  getResults(req, function(err, results, query) {
     if (err) { return internalServerError(res); }
     console.log('Rendering HTML result');
-
-    var resultCount = resultArrays.reduce(function(prev, elem) {
-      return prev + elem.length;
-    }, 0);
 
     res.render('search', {
       title: 'Search Aggregator',
       heading: 'Search Results',
       query: query,
-      resultArrays: resultArrays,
-      resultCount: '' + resultCount,
+      results: results,
+      resultCount: '' + results.length,
     });
 
     console.log('Finished rendering HTML result');
@@ -110,25 +101,45 @@ function getResults(req, produceResponse) {
     return produceResponse(null, [], null);
   }
 
-  var tasks = adaptors.map(function(adaptorConfig) {
-    return function(cb) {
-      console.log('Querying next adapter');
-      adaptorConfig.adaptor(query, adaptorConfig.settings, cb);
-    };
-	});
+  var results = [];
+  var activeAdaptors = [];
 
-	// TODO: error handling (timeout?)
+	// TODO: error handling & timeouts
+  adaptors.forEach(function(adaptorConfig) {
 
-  // TODO: Maybe switch to an event based protocol between the aggregator and
-  // the adapters? Actually, I think the following pattern would be a godd fit:
-  // - each adapter is an event emitter
-  // - for each new result, the adaptor emits an event
-  // - the aggregator receives the event and can then push one more result
-  //   to the consumer.
+    var Constructor = adaptorConfig.constructor;
+    var adaptorName = Constructor.name;
+    console.log('Querying next adapter: ' + adaptorName);
+    var adaptor = new Constructor(adaptorConfig.settings);
+    activeAdaptors.push(adaptor);
 
-	async.parallel(tasks, function(err, results) {
-    console.log('Aggregating adapter results');
-    return produceResponse(err, results, query);
+    // register listener for result event - each time this adaptor has a new
+    // result, we will be notified.
+    adaptor.on('result', function(result) {
+      console.log('Received result event from ' + adaptorName);
+      console.log(JSON.stringify(result, null, 2));
+      results.push(result);
+    });
+
+    // register listener for done event - when the adaptor has finished, we
+    // will be notified.
+    adaptor.on('done', function() {
+      console.log('Received DONE event from ' + adaptorName);
+      adaptor.removeAllListeners();
+      // remove adaptor from array
+      var index = activeAdaptors.indexOf(adaptor);
+      activeAdaptors.splice(index, 1);
+      // has this been the last adaptor to finish?
+      if (activeAdaptors.length === 0) {
+        console.log('All adaptors finished, returning results');
+        console.log(JSON.stringify(results, null, 2));
+        return produceResponse(null, results, query);
+      }
+      console.log('There are still some active adaptors left: ' + JSON.stringify(activeAdaptors));
+    });
+
+    // kick of this adaptor's search process and wait for events to arrive
+    adaptor.search(query);
 	});
 }
 

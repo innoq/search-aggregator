@@ -1,11 +1,20 @@
+var EventEmitter = require('events').EventEmitter;
 var request = require('request');
+var util = require('util');
 
 // All github search APIs have a rate limit of 5 requests per minute for
 // unauthicated requests. Providing basic auth or OAuth credentials would
 // definitely help, raising the rate limit to 20 requests per minute.
 
-module.exports = function (query, settings, callback) {
+function AdapterGithubIssues(settings) {
+  this.settings = settings;
+}
+
+util.inherits(AdapterGithubIssues, EventEmitter);
+
+AdapterGithubIssues.prototype.search = function(query) {
     console.log('adapter github issue search: starting for query ' + query);
+    var self = this;
 
     // TODO Restrict issue search to user innoQ
 
@@ -26,16 +35,17 @@ module.exports = function (query, settings, callback) {
 	      if (error) {
             console.log('error: ');
             console.log(error);
-	          return callback(error);
+            return self.emit('done', error);
 	      } else if (response.statusCode != 200) {
 	          console.log('Unexpected HTTP status: ' + response.status);
-	          return callback(new Error('Unexpected HTTP status: ' + response.status));
+            return self.emit('done',
+              new Error('Unexpected HTTP status: ' + response.status));
         }
         var results = [];
         console.log('adapter github issue search: processing results for query ' + query);
         if (body && body.items) {
             body.items.forEach(function(element) {
-                results.push({
+                self.emit('result', {
                     url: element.html_url,
                     title: element.title,
                     excerpt: element.body,
@@ -43,6 +53,8 @@ module.exports = function (query, settings, callback) {
                 });
             });
         }
-        return callback(null, results);
+        return self.emit('done');
     });
 };
+
+module.exports = AdapterGithubIssues;

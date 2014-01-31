@@ -29,11 +29,10 @@ block content
               em  "#{query}"
               | :
 
-            for aggregatorResult in resultArrays
-              for result in aggregatorResult
-                h4: a(href=result.url) #{result.title}
-                div= result.excerpt
-                div.small= result.timestamp
-          else
+            for result in results
+              h4: a(href=result.url) #{result.title}
+              div= result.excerpt
+              div.small= result.timestamp
+        else
             p.
               No results for "#{query}" :-(
