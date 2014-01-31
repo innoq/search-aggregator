@@ -8,7 +8,7 @@ module.exports = function (query, settings, callback) {
     console.log('adapter github issue search: starting for query ' + query);
 
     // TODO Restrict issue search to user innoQ
-
+    // TODO adding pagination "https://api.github.com/search/issues?q={query}{&page,per_page,sort,order}",
     // More optional query parameters
     // page:
     // per_page:
@@ -22,27 +22,27 @@ module.exports = function (query, settings, callback) {
         },
         json: true,
     };
-	  request.get(options, function (error, response, body) {
-	      if (error) {
-            console.log('error: ');
-            console.log(error);
-	          return callback(error);
-	      } else if (response.statusCode != 200) {
-	          console.log('Unexpected HTTP status: ' + response.status);
-	          return callback(new Error('Unexpected HTTP status: ' + response.status));
-        }
-        var results = [];
-        console.log('adapter github issue search: processing results for query ' + query);
-        if (body && body.items) {
-            body.items.forEach(function(element) {
-                results.push({
-                    url: element.html_url,
-                    title: element.title,
-                    excerpt: element.body,
-                    timestamp: element.updated_at,
-                });
+    request.get(options, function (error, response, body) {
+    if (error) {
+        console.log('error: ');
+        console.log(error);
+        return callback(error);
+    } else if (response.statusCode != 200) {
+        console.log('Unexpected HTTP status: ' + response.status);
+        return callback(new Error('Unexpected HTTP status: ' + response.status));
+    }
+    var results = [];
+    console.log('adapter github issue search: processing results for query ' + query+' items: '+body.items.length);
+    if (body && body.items) {
+        body.items.forEach(function(element) {
+            results.push({
+                url: element.html_url,
+                title: element.title,
+                excerpt: element.body,
+                timestamp: element.updated_at,
             });
-        }
-        return callback(null, results);
+        });
+    }
+    return callback(null, results);
     });
 };
