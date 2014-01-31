@@ -38,6 +38,7 @@ module.exports = function (query, settings, callback) {
                 results.push({
                     url: element.html_url,
                     title: element.title,
+                    excerpt: element.body,
                     timestamp: element.updated_at,
                 });
             });
