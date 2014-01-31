@@ -20,6 +20,8 @@ module.exports = function (query, settings, callback) {
 
     console.log('adapter github issue search: starting for query ' + query);
 
+    // TODO adding pagination "https://api.github.com/search/issues?q={query}{&page,per_page,sort,order}",
+
     var url = 'https://api.github.com/search/issues?q=' + query;
     if (settings && settings.searchRestrictedToUser) {
         url += '+user:' + settings.searchRestrictedToUser;
