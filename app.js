@@ -26,7 +26,19 @@ if ('development' == app.get('env')) {
 // care)
 
 // read in apapter configuration from config file
-var config = require('./config');
+try {
+  var config = require('./config');
+} catch (e) {
+  debugger;
+  if (e.code && e.code === 'MODULE_NOT_FOUND') {
+    console.error('ERROR: Could not load config.js. Please copy "config.js.template" to "config.js", customize "config.js" to fit your needs and try again.');
+  } else {
+    console.error('ERROR: There was an error while loading config.js. Did you screw that file up? Is it a valid module?');
+    console.error(e);
+  }
+  process.exit(1);
+}
+
 var adaptors = [];
 for (var name in config.adaptors) {
 	var adaptor = require(name);
