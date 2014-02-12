@@ -10,7 +10,7 @@
     "async": "~0.2.10",
     "cheerio": "~0.13.1",
     "express": "~3.4.8",
-    "jade": "~1.1.5",
+    "express-hbs": "~0.7.9",
     "JSONPath": "~0.9.1",
     "request": "~2.33.0"
   }

@@ -1,5 +1,6 @@
 'use strict';
 
+var hbs = require('express-hbs');
 var async = require('async');
 var express = require('express');
 var http = require('http');
@@ -9,8 +10,14 @@ var app = express();
 
 // configuration for all environments
 app.set('port', process.env.PORT || 3000);
+
+// Use `.hbs` for extensions and find partials in `views/partials`.
+app.engine('hbs', hbs.express3({
+  partialsDir: __dirname + '/views/partials'
+}));
+app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+
 app.use(express.logger('dev'));
 // serve static assets from public dir
 app.use(express.static(path.join(__dirname, 'public')));
@@ -103,13 +110,16 @@ function produceHtml(req, res) {
       return prev + elem.length;
     }, 0);
 
-    res.render('search', {
+    var paras = {
       title: 'Search Aggregator',
       heading: 'Search Results',
       query: query,
       resultArrays: resultArrays,
       resultCount: '' + resultCount,
-    });
+      hasResults: resultCount > 0
+    };
+    console.log('paras: '+JSON.stringify(paras));
+    res.render('search', paras);
 
     console.log('Finished rendering HTML result');
   });
